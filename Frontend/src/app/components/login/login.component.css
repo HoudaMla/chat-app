@@ -1,0 +1,102 @@
+/* Container for the sign-in form */
+.sign-in-container {
+    width: 100%;
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 30px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  /* Title Styling */
+  .sign-in-container h2 {
+    color: #333;
+    font-size: 2rem;
+    margin-bottom: 20px;
+    font-weight: 600;
+  }
+  
+  /* Form-group styling */
+  .form-group {
+    margin-bottom: 20px;
+    text-align: left;
+    display: block;
+    width: 100%;
+  }
+  
+  /* Label Styling */
+  .form-group label {
+    display: block;
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 8px;
+  }
+  
+  /* Input Field Styling */
+  .form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    color: #333;
+    transition: border 0.3s ease;
+  }
+  
+  /* Focus Input Border */
+  .form-group input:focus {
+    border: 1px solid #007bff;
+    outline: none;
+  }
+  
+  /* Error Message Styling */
+  .form-group small {
+    color: #e74c3c;
+    font-size: 0.875rem;
+    display: block;
+    margin-top: 5px;
+  }
+  
+  /* Button Styling */
+  button {
+    width: 100%;
+    padding: 12px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  button:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+  }
+  
+  /* Hover effect for button */
+  button:hover:enabled {
+    background-color: #0056b3;
+  }
+  
+  /* Additional styling for the already have an account section */
+  .already-account {
+    margin-top: 15px;
+    font-size: 1rem;
+    color: #333;
+  }
+  
+  .already-account a {
+    text-decoration: none;
+    color: #007bff;
+    font-weight: bold;
+  }
+  
+  .already-account a:hover {
+    color: #0056b3;
+  }
+  
+  
