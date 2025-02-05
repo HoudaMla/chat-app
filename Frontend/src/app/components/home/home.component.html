@@ -1,1 +1,31 @@
-<p>home works!</p>
+<div class="chat-container">
+  <div class="chat-header">Chat Room</div>
+
+  <div class="user-info">
+    <p><strong>Your Name:</strong> {{ sender }}</p>
+
+    <label for="receiver">Receiver's Name:</label>
+    <select [(ngModel)]="receiver" (ngModelChange)="fetchConversation()">
+      <option value="" disabled>Select a user</option>
+      <option *ngFor="let user of connectedUsers" [value]="user.username">{{ user.username }}</option>
+    </select>
+  </div>
+
+  <div class="chat-box">
+    <div *ngFor="let message of messages" class="message" 
+         [ngClass]="{'my-message': message.sender === sender, 'other-message': message.sender !== sender}">
+      <span class="sender">{{ message.sender }}:</span>
+      <span class="text">{{ message.message }}</span>
+    </div>
+  </div>
+
+  <div class="chat-input">
+    <input [(ngModel)]="message" type="text" placeholder="Type your message..." (keyup.enter)="sendMessage()" />
+    <button (click)="sendMessage()">Send</button>
+  </div>
+
+  <!-- Add Disconnect Button -->
+  <div class="disconnect-button">
+    <button (click)="disconnect()">Disconnect</button>
+  </div>
+</div>

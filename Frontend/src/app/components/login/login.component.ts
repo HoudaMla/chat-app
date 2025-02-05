@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AuthService } from '../../services/AuthService';
 import { HttpClientModule } from '@angular/common/http';
-import { Router } from '@angular/router';  // Importer le Router pour la navigation
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -14,11 +14,12 @@ import { Router } from '@angular/router';  // Importer le Router pour la navigat
 })
 export class LoginComponent {
   signInForm;
+  errorMessage: string = '';
 
   constructor(
     private fb: FormBuilder, 
     private authService: AuthService,
-    private router: Router  // Injecter Router pour la navigation
+    private router: Router 
   ) {
     this.signInForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -30,26 +31,30 @@ export class LoginComponent {
     if (this.signInForm.valid) {
       const { email, password } = this.signInForm.value;
 
-      if (email && password) {  // Vérifie que email et password sont non null et non undefined
+      if (email && password) {
         this.authService.signIn(email, password).subscribe(
           (response) => {
-            console.log('Sign-in successful:', response);
-            // Afficher un message de succès
-            alert('Login successful! Redirecting to home...');
-            // Naviguer vers la page d'accueil
-            this.router.navigate(['/home']);  // Assurez-vous que la route "/home" est configurée
+            if (response.status) {
+              console.log('Sign-in successful:', response);
+              alert('Login successful! Redirecting to home...');
+              this.router.navigate(['/home']);
+            } else {
+              console.error('Sign-in failed:', response.message);
+              this.errorMessage = response.message || 'Invalid credentials. Please try again.';
+              alert(response.message);
+
+            }
           },
           (error) => {
             console.error('Sign-in failed:', error);
-            // Afficher un message d'erreur
-            alert('Sign-in failed. Please try again.');
+            this.errorMessage = 'An error occurred. Please try again later.';
           }
         );
       } else {
-        console.error('Email or password is missing');
+        this.errorMessage = 'Email or password is missing';
       }
     } else {
-      console.error('Form is invalid');
+      this.errorMessage = 'Form is invalid. Please check your inputs.';
     }
   }
 }

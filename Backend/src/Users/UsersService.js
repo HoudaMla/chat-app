@@ -5,6 +5,7 @@ var encryptor = require('simple-encryptor')(key);
 module.exports.createrespDBService = (UserDetails) => {
     return new Promise((resolve, reject) => {
         var UserModelData = new userModel({
+            username: UserDetails.username,
             email: UserDetails.email,
             password: encryptor.encrypt(UserDetails.password),
             
@@ -30,8 +31,13 @@ module.exports.loginrespDBService = (UserDetails) => {
                 var decrypted = encryptor.decrypt(result.password);
 
                 if (decrypted === UserDetails.password) {
-                    resolve({ status: "ok", msg: "User Validated Successfully", data:{id:result._id} });
+                    UserDetails.isOnline = true;
+                    resolve({ status: "ok", msg: "User Validated Successfully", data: { id: result._id, username: result.username , online:result.isOnline } });
                     console.log(result._id);
+
+                    userModel.updateOne({ _id: result._id }, { isOnline: true })
+                        .catch(err => console.error("Failed to update isOnline:", err));
+
                 } else {
                     reject({ status: false, msg: "Invalid Password" });
                 }
@@ -41,4 +47,5 @@ module.exports.loginrespDBService = (UserDetails) => {
             });
     });
 };
+
 

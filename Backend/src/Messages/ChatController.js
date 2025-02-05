@@ -1,25 +1,31 @@
-const Chat = require('./ChatModel'); // Ensure correct model import
+const Chat = require('./ChatModel'); 
 
-// Get all chats
+
 var getChat = async (req, res) => {
     try {
-        const chats = await Chat.find().sort({ timestamp: 1 });
-        res.json(chats);
-    } catch (error) {
-        console.error("Error fetching chats:", error.message, "\nStack Trace:", error.stack);
-        res.status(500).json({ error: "Erreur lors de la récupération des chats", details: error.message });
+        const { user1, user2 } = req.params;
+
+        const messages = await Chat.find({
+            $or: [
+                { sender: user1, receiver: user2 },
+                { sender: user2, receiver: user1 }
+            ]
+        }).sort({ timestamp: 1 });
+
+        res.json(messages);
+    } catch (err) {
+        res.status(500).json({ error: 'Erreur serveur' });
     }
 };
 
-// Save a chat via API REST
 var createChat = async (req, res) => {
     try {
-        const { user, chat } = req.body;
-        if (!user || !chat) {
+        const { sender, receiver, chat } = req.body;
+        if (!sender || !receiver || !chat) {
             return res.status(400).json({ error: "User and chat fields are required" });
         }
 
-        const newChat = new Chat({ user, chat });
+        const newChat = new Chat({ sender, receiver, chat });
         await newChat.save();
         res.status(201).json(newChat);
     } catch (error) {

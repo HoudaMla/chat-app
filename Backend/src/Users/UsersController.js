@@ -39,4 +39,46 @@ var loginUserpControllerFn = async (req, res) => {
         res.send({ "status": false, "message": error.msg });
     }
 }
-module.exports = { createUserControllerFn, loginUserpControllerFn};
+
+
+const getOnlineUsers = (req, res, next) => {
+    UserModel.find({ isOnline: true }) 
+        .then(users => {
+            if (!users || users.length === 0) {
+                return res.status(404).json({
+                    message: "No online users found",
+                });
+            }
+            console.log(users);
+            res.status(200).json(users);
+        })
+        .catch(err => {
+            res.status(500).json({
+                message: "Error retrieving online users",
+                error: err
+            });
+            console.log(err);
+        });
+};
+
+var disconect = (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            return res.status(500).json({ message: "Failed to log out" });
+        }
+        
+        // Mark user as offline in the database
+        UserModel.updateOne({ _id: req.user.id }, { isOnline: false })
+            .then(() => {
+                console.log("User is marked as offline");
+                res.status(200).json({ message: "Logged out successfully" });
+            })
+            .catch((err) => {
+                console.log("Error updating user status:", err);
+                res.status(500).json({ message: "Error updating user status" });
+            });
+    });
+};
+
+
+module.exports = { createUserControllerFn, loginUserpControllerFn, getOnlineUsers, disconect};
