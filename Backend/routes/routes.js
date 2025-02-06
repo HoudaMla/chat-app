@@ -9,7 +9,7 @@ router.route('/login').post(userController.loginUserpControllerFn);
 router.route('/create').post(userController.createUserControllerFn);
 
 router.route('/onlineuser').get(userController.getOnlineUsers);
-router.route('/logout').post(userController.disconect);  // Call the disconnect method
+router.route('/logout').post(userController.disconect);  
 
 // router.route('/connected').get(userController.getConnectedUsers);
 

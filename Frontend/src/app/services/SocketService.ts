@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { io, Socket } from 'socket.io-client'; // Import du client Socket.IO
-import { environment } from '../environments/environment'; // Pour charger les variables d'environnement
+import { io, Socket } from 'socket.io-client'; 
+import { environment } from '../environments/environment'; 
 import { Observable } from 'rxjs';
-import { HttpClient } from '@angular/common/http'; // Import HttpClient for HTTP requests
+import { HttpClient } from '@angular/common/http'; 
 
 @Injectable({
   providedIn: 'root',
@@ -10,12 +10,12 @@ import { HttpClient } from '@angular/common/http'; // Import HttpClient for HTTP
 export class SocketService {
   private socket: Socket;
 
-  constructor(private http: HttpClient) { // Inject HttpClient in the constructor
+  constructor(private http: HttpClient) { 
     this.socket = io(environment.baseUrl);
   }
 
   getConnectedUsers(): Observable<string[]> {
-    return this.http.get<string[]>(`${environment.baseUrl}/users/connected`); // Use the correct URL
+    return this.http.get<string[]>(`${environment.baseUrl}/users/connected`); 
   }
 
   sendChat(sender: string, receiver: string, message: string): void {
@@ -31,8 +31,17 @@ export class SocketService {
   }
 
   emitUserConnected(username: string): void {
-    this.socket.emit('user-connected', username);  // Emit the user-connected event
+    this.socket.emit('user-connected', username);  
 }
+
+  getUpdatedUsers(): Observable<string[]> {
+    return new Observable((observer) => {
+        this.socket.on('update-users', (users) => {
+            observer.next(users);
+        });
+    });
+  }
+
 
   disconnect(): void {
     this.socket.disconnect();

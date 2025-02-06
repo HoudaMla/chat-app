@@ -22,7 +22,7 @@ export class SignupComponent {
 
     ) {
     this.signUpForm = this.formBuilder.group({
-      username: ['', [Validators.required, Validators.pattern('^[a-zA-Z0-9_-]{3,15}$')]], // Ajout d'une validation correcte pour le username
+      username: ['', [Validators.required, Validators.pattern('^[a-zA-Z0-9_-]{3,15}$')]], 
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
     });

@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { AuthService } from '../../services/AuthService';  // Correct path for service
-import { ChatService } from '../../services/chatService';  // Import the ChatService
-import { SocketService } from '../../services/SocketService';  // Correct path for service
+import { AuthService } from '../../services/AuthService';  
+import { ChatService } from '../../services/chatService';  
+import { SocketService } from '../../services/SocketService';  
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -17,12 +17,12 @@ export class HomeComponent implements OnInit, OnDestroy {
   receiver: string = ''; 
   message: string = ''; 
   messages: any[] = [];
-  connectedUsers: { username: string, id: string }[] = [];
+  connectedUsers: { username: string }[] = [];
 
   constructor(
     private authService: AuthService,
     private socketService: SocketService,
-    private chatService: ChatService  // Inject ChatService
+    private chatService: ChatService  
   ) {}
 
   ngOnInit(): void {
@@ -30,22 +30,32 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     this.socketService.emitUserConnected(this.sender);
 
+
     this.authService.getOnlineUsers().subscribe((users) => {
-      this.connectedUsers = users;  
-      console.log(users);
+        this.connectedUsers = users;  
+        console.log('Initial users:', users);
     });
 
-  
-    this.socketService.receiveChat().subscribe((message) => {
-    this.messages.push(message);  
-    console.log('Received message:', message); 
+
+    this.socketService.getUpdatedUsers().subscribe((usernames: string[]) => {
+      this.connectedUsers = usernames.map(username => ({ username, id: '' })); 
+      console.log('Updated user list:', this.connectedUsers);
   });
-  }
+  
+
+
+    // Listen for incoming chat messages
+    this.socketService.receiveChat().subscribe((message) => {
+        this.messages.push(message);  
+        console.log('Received message:', message);
+    });
+}
+
 
   sendMessage(): void {
     if (this.message.trim()) {
       this.socketService.sendChat(this.sender, this.receiver, this.message);
-      this.message = '';  // Reset the message input field
+      this.message = '';  
     }
   }
 

@@ -49,11 +49,9 @@ export class AuthService {
 
   logout(): void {
     if (isPlatformBrowser(this.platformId)) {
-      // Remove username from localStorage
       localStorage.removeItem('username');
     }
 
-    // Call the backend API to log out the user and update their 'isOnline' status
     this.http.post(`${this.apiUrl}/logout`, {}).subscribe(
       (response) => {
         console.log('Logged out successfully', response);
