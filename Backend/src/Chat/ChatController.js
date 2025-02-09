@@ -34,4 +34,24 @@ var createChat = async (req, res) => {
     }
 };
 
-module.exports = { getChat, createChat };
+const getGroupChat = (req, res, next) => {
+    Chat.find({ receiver: "all" }) 
+        .then(chats => {
+            if (!chats || chats.length === 0) {
+                return res.status(404).json({
+                    message: "No group chat found",
+                });
+            }
+            console.log(chats);
+            res.status(200).json(chats);
+        })
+        .catch(err => {
+            res.status(500).json({
+                message: "Error retrieving group chat",
+                error: err
+            });
+            console.log(err);
+        });
+};
+
+module.exports = { getChat, createChat, getGroupChat };

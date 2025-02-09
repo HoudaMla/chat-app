@@ -3,6 +3,7 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { CommonModule, NgFor, NgForOf } from '@angular/common'; 
 import { HttpClientModule } from '@angular/common/http';
 import { ReactiveFormsModule } from '@angular/forms'; 
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-root',
@@ -14,7 +15,9 @@ import { ReactiveFormsModule } from '@angular/forms';
     CommonModule,
     HttpClientModule,
     NgFor,
-    ReactiveFormsModule  
+    ReactiveFormsModule,
+    MatSnackBarModule,  
+ 
 
   ],
   templateUrl: './app.component.html',

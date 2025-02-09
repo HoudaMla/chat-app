@@ -60,14 +60,24 @@ const getOnlineUsers = (req, res, next) => {
             console.log(err);
         });
 };
+var getAllUsers =(req,res,next)=>{
+    UserModel.find()
+    .then(resultat=>{
+        res.status(200).json(
+            resultat
+    )})
+    .catch(err=>{
+        res.status(404).json({
+        massage :err 
 
+    })})
+};
 var disconect = (req, res) => {
     req.session.destroy((err) => {
         if (err) {
             return res.status(500).json({ message: "Failed to log out" });
         }
         
-        // Mark user as offline in the database
         UserModel.updateOne({ _id: req.user.id }, { isOnline: false })
             .then(() => {
                 console.log("User is marked as offline");
@@ -81,4 +91,4 @@ var disconect = (req, res) => {
 };
 
 
-module.exports = { createUserControllerFn, loginUserpControllerFn, getOnlineUsers, disconect};
+module.exports = { createUserControllerFn, loginUserpControllerFn, getOnlineUsers, disconect, getAllUsers};

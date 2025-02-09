@@ -15,4 +15,8 @@ export class ChatService {
   getConversation(user1: string, user2: string): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/${user1}/${user2}`);
   }
+
+  getGroupChat(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/group`);
+  }
 }

@@ -5,10 +5,19 @@
     <p><strong>Your Name:</strong> {{ sender }}</p>
 
     <label for="receiver">Receiver's Name:</label>
-    <select [(ngModel)]="receiver" (ngModelChange)="fetchConversation()">
-      <option value="" disabled>Select a user</option>
-      <option *ngFor="let user of connectedUsers" [value]="user.username">{{ user.username }}</option>
-    </select>
+    <div class="user-list">
+      <p (click)="toggleGroupChat()"> 
+        <strong [style.color]="isGroupChat ? 'green' : 'black'">Group Chat</strong>
+      </p>
+      <p><strong>Online Users:</strong></p>
+      <ul>
+        <li *ngFor="let user of users" (click)="selectUser(user.username)">
+          {{ user.username }}
+          <span *ngIf="user.unreadCount > 0" class="badge">{{ user.unreadCount }}</span>
+          <span *ngIf="user.isOnline" style="color: green; font-size: 5px;">🟢</span>
+        </li>
+      </ul>
+    </div>
   </div>
 
   <div class="chat-box">
@@ -25,6 +34,6 @@
   </div>
 
   <div class="disconnect-button">
-    <button (click)="disconnect()">Disconnect</button>
+    <button (click)="ngOnDestroy()">Disconnect</button>
   </div>
 </div>

@@ -34,11 +34,15 @@ export class AuthService {
     return this.http.get<any>(`${this.apiUrl}/onlineuser`);
   }
 
+  getUsers(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/user`);
+  }
+
   getUsername(): string {
     if (isPlatformBrowser(this.platformId)) { 
-      return localStorage.getItem('username') || 'Guest';
+      return localStorage.getItem('username') || '';
     }
-    return 'Guest'; 
+    return ''; 
   }
 
   setUsername(username: string): void {
@@ -47,18 +51,18 @@ export class AuthService {
     }
   }
 
-  logout(): void {
-    if (isPlatformBrowser(this.platformId)) {
-      localStorage.removeItem('username');
-    }
+  // logout(): void {
+  //   if (isPlatformBrowser(this.platformId)) {
+  //     localStorage.removeItem('username');
+  //   }
 
-    this.http.post(`${this.apiUrl}/logout`, {}).subscribe(
-      (response) => {
-        console.log('Logged out successfully', response);
-      },
-      (error) => {
-        console.error('Logout failed', error);
-      }
-    );
-  }
+  //   this.http.post(`${this.apiUrl}/logout`, {}).subscribe(
+  //     (response) => {
+  //       console.log('Logged out successfully', response);
+  //     },
+  //     (error) => {
+  //       console.error('Logout failed', error);
+  //     }
+  //   );
+  // }
 }
