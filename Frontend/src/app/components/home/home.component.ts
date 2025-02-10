@@ -6,11 +6,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-chat',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MatSnackBarModule],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
@@ -31,45 +32,42 @@ export class HomeComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    console.log("Initialisation de HomeComponent...");
     this.socketService.initializeSocket(); 
-    this.sender = this.authService.getUsername();  
+    this.sender = this.authService.getUsername();
+    
+    console.log(`📢 Utilisateur connecté: ${this.sender}`);
     this.socketService.emitUserConnected(this.sender);
 
-    this.messages = [];
+    this.socketService.getConnectedUsers().subscribe((onlineUsernames: string[]) => {
+        console.log('📌 Liste des utilisateurs connectés reçue:', onlineUsernames);
 
-    this.socketService.getUpdatedUsers().subscribe((onlineUsernames: string[]) => {
-      this.users = onlineUsernames
-        .filter(username => username !== this.sender)
-        .map(username => ({ username, isOnline: true, unreadCount: 0 }));
+        this.users = onlineUsernames
+            .filter(username => username !== this.sender)
+            .map(username => ({ username, isOnline: true, unreadCount: 0 }));
 
-      console.log('Utilisateurs connectés:', this.users);
+        console.log('👥 Utilisateurs mis à jour:', this.users);
     });
 
     this.socketService.receiveChat().subscribe((message) => {
-      console.log('Message reçu:', message);
-    
-      this.snackBar.open(`Nouveau message de ${message.sender}: ${message.message}`, 'Fermer', {
-        duration: 3000,  
-        verticalPosition: 'top',
-        horizontalPosition: 'right',
-        panelClass: ['snackbar-custom']
-      });
-    
-      if (!this.isGroupChat) {
-        const userIndex = this.users.findIndex(user => user.username === message.sender);
-    
-        if (message.sender === this.receivers[0]) {
-          this.messages.push(message);
-        } else {
-          if (userIndex !== -1) {
-            this.users[userIndex].unreadCount += 1;
-          }
-        }
-      } else {
+      console.log('📩 Message reçu:', message);
+      
+      if (message.sender !== this.sender) {
         this.messages.push(message);
+    
+        const userIndex = this.users.findIndex(user => user.username === message.sender);
+        if (userIndex !== -1) {
+          this.users[userIndex].unreadCount += 1;
+        }
+    
+        this.snackBar.open(`New message from ${message.sender}: "${message.message}"`, 'Close', {
+          duration: 3000,
+          horizontalPosition: 'right',
+          verticalPosition: 'top',
+          panelClass: ['snackbar-style']
+        });
       }
     });
+    
   }
 
   toggleGroupChat(): void {
@@ -85,7 +83,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         (error) => console.log('Erreur lors du chargement du chat de groupe:', error)
       );
     } else {
-      this.messages = []; 
+      this.messages = [];
     }
   }
 
@@ -109,16 +107,14 @@ export class HomeComponent implements OnInit, OnDestroy {
         receiver: this.isGroupChat ? 'all' : this.receivers[0],  
         isGroup: this.isGroupChat
       };
-
+  
+      this.messages.push({ ...chatData, fromSelf: true });
+  
       this.socketService.sendChat(chatData);
-
-      if (!this.isGroupChat) {
-        this.messages.push(chatData);
-      }
-
       this.message = '';  
     }
   }
+  
 
   fetchConversation(): void {
     const receiver = this.isGroupChat ? 'all' : this.receivers[0];

@@ -1,64 +1,60 @@
 const { addUser, removeUser } = require('../src/Chat/ChatController'); 
 const Chat = require('../src/Chat/ChatModel'); 
 
-const connectedUsers = new Map(); // Garde une trace des utilisateurs connectés
+const connectedUsers = new Map(); 
 
 module.exports.setupSocket = (io) => {
     io.on('connection', (socket) => {
-        console.log('Un utilisateur s\'est connecté');
+        console.log(' Un utilisateur s\'est connecté avec l\'ID:', socket.id);
 
         socket.on('user-connected', (username) => {
-            console.log(`${username} connected with socket ID: ${socket.id}`);
+            console.log(` ${username} s'est connecté avec le socket ID: ${socket.id}`);
             socket.username = username;
-            connectedUsers.set(username, socket.id);  // Correctly store the username and socket ID
-            io.emit('update-users', Array.from(connectedUsers.keys()));  // Emit updated user list
+            connectedUsers.set(username, socket.id);  
+
+            io.emit('update-users', Array.from(connectedUsers.keys()));  
         });
         
-
         socket.on('sendChat', async (data) => {
             const { sender, receiver, message, isGroup } = data;
-            console.log('Received chat message:', sender, receiver, message);
+            console.log(' Message reçu:', sender, receiver, message);
             
             const newChat = new Chat({
                 sender, 
-                receiver: receiver === 'all' ? 'all' : Array.isArray(receiver) ? receiver : [receiver],  // Ensure 'all' or single user
+                receiver: receiver === 'all' ? 'all' : Array.isArray(receiver) ? receiver : [receiver],  
                 message
             });
         
             try {
                 await newChat.save();
-        
-                if (receiver === 'all') {
+
+                if (isGroup) {
+                    console.log("Envoi du message à tous les utilisateurs.");
                     connectedUsers.forEach((socketId, username) => {
-                        if (socketId !== sender) {
+                        if (username !== sender) {
                             io.to(socketId).emit('receiveChat', newChat);
                         }
                     });
                 } else {
                     const receiverSocketId = connectedUsers.get(receiver);
                     if (receiverSocketId) {
+                        console.log(` Envoi du message privé à ${receiver}`);
                         io.to(receiverSocketId).emit('receiveChat', newChat);
                     } else {
-                        console.log('Receiver not connected');
+                        console.log('Utilisateur non connecté:', receiver);
                     }
                 }
-        
+
                 socket.emit('receiveChat', newChat);
             } catch (error) {
-                console.error('Error saving chat message:', error);
+                console.error(' Erreur lors de l\'enregistrement du message:', error);
             }
         });
-        
-        
-        
 
         socket.on('disconnect', () => {
-            console.log(`${socket.username} disconnected`);
-
-            connectedUsers.delete(socket.username);  // Retirer l'utilisateur de la Map
-
-            io.emit('update-users', Array.from(connectedUsers.keys()));  // Mettre à jour la liste des utilisateurs
+            console.log(` ${socket.username} s'est déconnecté`);
+            connectedUsers.delete(socket.username);  
+            io.emit('update-users', Array.from(connectedUsers.keys()));  
         });
-        
     });
 };

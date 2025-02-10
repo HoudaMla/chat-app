@@ -9,20 +9,33 @@ import { HttpClient } from '@angular/common/http';
 })
 export class SocketService {
   private socket!: Socket;
-  private initialized = false;  // Prevent multiple initializations
+  private initialized = false;
 
   constructor(private http: HttpClient) {}
 
   initializeSocket(): void {
     if (!this.initialized) {
       this.socket = io(environment.baseUrl, { transports: ['websocket', 'polling'] });
+
+      this.socket.on('connect', () => {
+        console.log(" WebSocket connection established.");
+      });
+
+      this.socket.on('disconnect', () => {
+        console.log("WebSocket disconnected.");
+      });
+
       this.initialized = true;
-      console.log("WebSocket connection initialized...");
     }
   }
 
   getConnectedUsers(): Observable<string[]> {
-    return this.http.get<string[]>(`${environment.baseUrl}/users/connected`);
+    return new Observable((observer) => {
+      this.socket.on('update-users', (users) => {
+        console.log(' Utilisateurs connectés reçus:', users);
+        observer.next(users);
+      });
+    });
   }
 
   sendChat(chatData: { sender: string, receiver: string | string[], message: string, isGroup: boolean }) {
@@ -36,19 +49,14 @@ export class SocketService {
   }
 
   emitUserConnected(username: string): void {
+    console.log(` Envoi de user-connected pour ${username}`);
     this.socket.emit('user-connected', username);
-  }
-
-  getUpdatedUsers(): Observable<string[]> {
-    return new Observable((observer) => {
-      this.socket.on('update-users', (users) => observer.next(users));
-    });
   }
 
   disconnect(): void {
     if (this.socket) {
       this.socket.disconnect();
-      console.log("WebSocket disconnected...");
+      console.log(" WebSocket déconnecté...");
     }
   }
 }
