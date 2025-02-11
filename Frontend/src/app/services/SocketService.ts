@@ -1,33 +1,38 @@
-import { Injectable } from '@angular/core';
+import {  ApplicationRef, inject, Injectable } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
 import { environment } from '../environments/environment';
-import { Observable } from 'rxjs';
+import { first, Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SocketService {
-  private socket!: Socket;
+  private socket: Socket;
   private initialized = false;
 
-  constructor(private http: HttpClient) {}
-
-  initializeSocket(): void {
-    if (!this.initialized) {
-      this.socket = io(environment.baseUrl, { transports: ['websocket', 'polling'] });
-
-      this.socket.on('connect', () => {
-        console.log(" WebSocket connection established.");
-      });
-
-      this.socket.on('disconnect', () => {
-        console.log("WebSocket disconnected.");
-      });
-
-      this.initialized = true;
-    }
+  constructor(private http: HttpClient) {
+    this.socket = io(environment.baseUrl, { autoConnect: false });
+    inject(ApplicationRef).isStable.pipe(
+      first((isStable) => isStable))
+    .subscribe(() => { this.socket.connect() });
   }
+
+  // initializeSocket(): void {
+  //   if (!this.initialized) {
+  //     this.socket = io(environment.baseUrl, { autoConnect: false });
+
+  //     this.socket.on('connect', () => {
+  //       console.log(" WebSocket connection established.");
+  //     });
+
+  //     // this.socket.on('disconnect', () => {
+  //     //   console.log("WebSocket disconnected.");
+  //     // });
+
+  //     this.initialized = true;
+  //   }
+  // }
 
   getConnectedUsers(): Observable<string[]> {
     return new Observable((observer) => {

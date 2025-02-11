@@ -12,10 +12,10 @@ bootstrapApplication(AppComponent, {
     {
       provide: 'APP_INITIALIZER',
       useFactory: (socketService: SocketService) => () => {
-        socketService.initializeSocket();
+        // socketService.initializeSocket();
         return Promise.resolve();
       },
-      deps: [SocketService],
+      // deps: [SocketService],
       multi: true
     }
   ]
