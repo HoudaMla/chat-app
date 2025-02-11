@@ -33,13 +33,12 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.sender = this.authService.getUsername();
-    console.log(`📢 Utilisateur connecté: ${this.sender}`);
+    console.log(` Utilisateur connecté: ${this.sender}`);
 
     this.socketService.emitUserConnected(this.sender);
 
-    // ✅ Fetch connected users
     this.socketService.getConnectedUsers().subscribe((onlineUsernames: string[]) => {
-      console.log('📌 Utilisateurs en ligne:', onlineUsernames);
+      console.log(' Utilisateurs en ligne:', onlineUsernames);
 
       this.users = onlineUsernames
         .filter(username => username !== this.sender) 
@@ -52,21 +51,18 @@ export class HomeComponent implements OnInit, OnDestroy {
       console.log('👥 Liste des utilisateurs en ligne mise à jour:', this.users);
     });
 
-    // ✅ Listen for incoming messages
     this.socketService.receiveChat().subscribe((message) => {
-      console.log('📩 Message reçu:', message);
+      console.log(' Message reçu:', message);
 
       if (message.sender !== this.sender) {
         this.messages.push(message);
 
-        // Find the sender in the user list
         const userIndex = this.users.findIndex(user => user.username === message.sender);
         if (userIndex !== -1) {
           this.users[userIndex].unreadCount += 1;
-          this.users = [...this.users];  // 🔄 Ensure UI updates in real-time
+          this.users = [...this.users];  
         }
 
-        // Show notification
         if (Notification.permission === "granted") {
           new Notification(`New message from ${message.sender}`, {
             body: message.message,
@@ -83,10 +79,9 @@ export class HomeComponent implements OnInit, OnDestroy {
       }
     });
 
-    // Request notification permission
     if ("Notification" in window) {
       Notification.requestPermission().then(permission => {
-        console.log("🔔 Notification permission:", permission);
+        console.log(" Notification permission:", permission);
       });
     }
   }
@@ -148,7 +143,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     const userIndex = this.users.findIndex(user => user.username === username);
     if (userIndex !== -1) {
       this.users[userIndex].unreadCount = 0;
-      this.users = [...this.users];  // 🔄 Trigger UI update
+      this.users = [...this.users];  
     }
   }
 
